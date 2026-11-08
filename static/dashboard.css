@@ -1,0 +1,10 @@
+.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+.charts .wide{grid-column:1/-1}
+.dataset-message{margin:16px 0 0;padding:12px 15px;border:1px solid #dce9df;border-radius:8px;background:#eef5f0;color:#35674e;font-size:12px;line-height:1.5}
+.dataset-message.warning{background:#fff7e9;border-color:#f0dfbd;color:#8a6330}
+.dataset-message.error{background:#fff0ed;border-color:#f2d4cb;color:#9c493b}
+.chart-placeholder{height:100%;min-height:130px;display:grid;place-items:center;text-align:center;padding:22px;color:#8b9a93;font-size:12px;line-height:1.5}
+.missing-statistics{margin-top:16px;padding-top:13px;border-top:1px solid var(--line);font-size:10px;line-height:1.7;color:#84958d;overflow-wrap:anywhere}
+.toolbar select{max-width:min(52vw,310px)}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.charts .wide{grid-column:auto}}
+@media(max-width:680px){.metrics{grid-template-columns:1fr 1fr}.charts{grid-template-columns:1fr}.toolbar label{gap:6px}.toolbar select{max-width:47vw}}

@@ -1,0 +1,51 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Eurasia | Climate & Cropland</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'dashboard.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body><div class="layout">
+  <aside class="sidebar"><a class="brand" href="/"><span class="brand-icon">✳</span><span>Fieldnotes<small>CLIMATE INTELLIGENCE</small></span></a>
+    <div class="nav-label">WORKSPACE</div><button class="nav-item active">◫ <span>Regional overview</span></button>
+    <button class="nav-item" onclick="document.querySelector('#model').scrollIntoView({behavior:'smooth'})">⌁ <span>Impact scenarios</span></button>
+    <button class="nav-item" onclick="document.querySelector('#method').scrollIntoView({behavior:'smooth'})">▤ <span>Data & method</span></button>
+    <div class="side-bottom"><div class="source-status"><span class="green-dot"></span><span>Open data sources<small id="updated">No dataset loaded</small></span></div><p>Research prototype<br>Country-level annual estimates</p></div>
+  </aside>
+  <main><header class="topbar"><div class="crumb">Research <span>/</span> Eurasia</div><div class="top-actions"><span class="live-dot"></span> OPEN DATA <button id="refresh" class="refresh">↻ Load / refresh data</button></div></header>
+    <section class="hero"><div><div class="eyebrow"><span>EURASIAN REGION</span><i>•</i> <span id="period">Historical panel</span></div><h1>Climate & cropland<br><em>sustainability</em></h1><p>Explore how changing weather patterns intersect with agricultural land and cereal productivity across Eurasia.</p></div><div class="hero-mark">✳</div></section>
+    <section class="toolbar"><label>COUNTRY / REGION<select id="country"><option value="ALL">All available Eurasia</option></select></label><div class="toolbar-note">VALID OBSERVATIONS <b id="nrows">—</b></div><a class="download" href="/api/download">↓ Export CSV</a></section>
+    <div id="dataset-message" class="dataset-message" role="status" hidden></div>
+    <section class="metrics">
+      <article class="metric"><div class="metric-head">STUDY REGION</div><strong id="m-region">Eurasia</strong><small>Country-year panel</small></article>
+      <article class="metric"><div class="metric-head">COUNTRIES WITH VALID DATA</div><strong id="m-countries">—</strong><small>Countries in loaded coverage</small></article>
+      <article class="metric"><div class="metric-head">YEARS COVERED</div><strong id="m-years">—</strong><small id="year-range">Available historical period</small></article>
+      <article class="metric"><div class="metric-head">VALID OBSERVATIONS</div><strong id="m-rows">—</strong><small>Complete country-year records</small></article>
+      <article class="metric"><div class="metric-head">MEAN TEMPERATURE</div><strong id="m-temp">—</strong><small>Annual mean, °C</small></article>
+      <article class="metric"><div class="metric-head">MEAN ANNUAL PRECIPITATION</div><strong id="m-rain">—</strong><small>mm/year</small></article>
+      <article class="metric"><div class="metric-head">MEAN CEREAL YIELD</div><strong id="m-yield">—</strong><small>kg per hectare</small></article>
+      <article class="metric"><div class="metric-head">AGRICULTURAL LAND</div><strong id="m-land">—</strong><small>% of land area</small></article>
+    </section>
+    <section class="charts">
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">CLIMATE TREND</span><h2>Annual mean temperature</h2></div></div><div class="chart-wrap"><canvas id="temperatureChart"></canvas></div></article>
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">CLIMATE TREND</span><h2>Annual precipitation</h2></div></div><div class="chart-wrap"><canvas id="precipitationChart"></canvas></div></article>
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">AGRICULTURE</span><h2>Country cereal yield</h2></div></div><div class="chart-wrap"><canvas id="yieldCountryChart"></canvas></div></article>
+      <article class="panel"><div class="panel-title"><div><span class="eyebrow">LAND USE</span><h2>Agricultural land share over time</h2></div></div><div class="chart-wrap"><canvas id="landChart"></canvas></div></article>
+      <article class="panel wide"><div class="panel-title"><div><span class="eyebrow">SUSTAINABILITY ANALYSIS</span><h2>Temperature and cereal productivity</h2></div></div><div class="chart-wrap"><canvas id="sustainabilityChart"></canvas></div></article>
+    </section>
+    <section id="model" class="model-section"><div class="section-intro"><span class="eyebrow">INTERPRETABLE MACHINE LEARNING</span><h2>Explore a climate scenario</h2><p>Estimate how a temperature and rainfall shift may change cereal yield for a selected country.</p></div><div class="model-grid">
+      <div class="panel controls"><label>Temperature change <span><output id="temp-out">+1.5 °C</output></span><input id="temp-delta" type="range" min="-2" max="5" step="0.5" value="1.5"></label><label>Rainfall change <span><output id="rain-out">−10%</output></span><input id="rain-delta" type="range" min="-50" max="50" step="5" value="-10"></label><button id="run" class="primary">Run scenario <b>→</b></button><small class="note">Exploratory model sensitivity, not a forecast or causal effect.</small></div>
+      <div class="panel result" id="result"><span class="eyebrow">MODEL ESTIMATE</span><div class="empty">Load the dataset to enable country yield scenario estimates.</div></div>
+    </div><div class="panel explain" id="explain" hidden><div class="panel-title"><div><span class="eyebrow">LOCAL SENSITIVITY</span><h2>What moves the estimate?</h2></div></div><p>Estimated yield change for one standard deviation change in one input, holding others at baseline. This is model sensitivity, not causal attribution.</p><div id="explain-bars"></div><div class="model-quality" id="quality"></div></div></section>
+    <section id="method" class="panel method"><span class="eyebrow">SOURCES & LIMITATIONS</span><h2>Transparent by design</h2><div class="method-grid">
+      <div><b>Climate — NASA POWER monthly point series</b><p>2 m air temperature (T2M, aggregated to a day-weighted annual mean °C); corrected precipitation (PRECTOTCORR, monthly mean mm/day multiplied by days in month and summed to annual mm/year); relative humidity (RH2M, day-weighted % mean). A representative point per country is used, not an area-weighted national average.</p></div>
+      <div><b>Agriculture — World Bank WDI</b><p>Agricultural land (AG.LND.AGRI.ZS, % of land area) and cereal yield (AG.YLD.CREL.KG, kg/ha). Joined with NASA climate data on ISO3 country code and calendar year.</p></div>
+      <div><b>Model — Random Forest</b><p>Trained on available country-year rows; later years are held out for evaluation. Missing climate inputs are median-imputed for modeling only. Charts and summary metrics use actual observations.</p></div>
+      <div><b>Coverage and missing data</b><p id="coverage-note">Only countries with retrieved and overlapping source observations are shown. Refresh results report source errors and missing required fields. No observations are fabricated or filled for display.</p></div>
+    </div><div class="source-links"><a href="https://power.larc.nasa.gov/docs/services/api/temporal/" target="_blank" rel="noreferrer">NASA POWER temporal API ↗</a><a href="https://datahelpdesk.worldbank.org/knowledgebase/articles/889392" target="_blank" rel="noreferrer">World Bank Indicators API ↗</a><a href="https://data.worldbank.org/indicator/AG.LND.AGRI.ZS" target="_blank" rel="noreferrer">Agricultural land ↗</a><a href="https://data.worldbank.org/indicator/AG.YLD.CREL.KG" target="_blank" rel="noreferrer">Cereal yield ↗</a></div><div id="missing-statistics" class="missing-statistics"></div></section>
+    <footer>FIELDNOTES · CLIMATE INTELLIGENCE <span>For exploratory research use</span></footer>
+  </main></div><div id="toast" class="toast"></div><script src="{% static 'app.js' %}"></script></body></html>
